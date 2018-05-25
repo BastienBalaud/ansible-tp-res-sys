@@ -1,0 +1,12 @@
+ - name: Setup firewalld https
+   firewalld : 
+     service: https
+     permanent: true
+     state: enabled
+     immediate: true
+ - name: Setup firewalld htt
+   firewalld :
+     service: http
+     permanent: true
+     state: enabled
+     immediate: true

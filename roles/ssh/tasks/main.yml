@@ -1,0 +1,34 @@
+- name: "Change MaxSessions Numbers"
+  replace:
+    path: /etc/ssh/sshd_config
+    regexp: '[#]MaxSessions\s[0-9]*'
+    replace: 'MaxSessions 4'
+    backup: yes
+- name: "Change MaxAuthTries Numbers"
+  replace:
+    path: /etc/ssh/sshd_config
+    regexp: '[#]MaxAuthTries\s[0-9]*'
+    replace: 'MaxAuthTries 2'
+    backup: yes
+- name: "Change MaxAuthTries Numbers"
+  replace:
+    path: /etc/ssh/sshd_config
+    regexp: '[#]PasswordAuthentication *'
+    replace: 'PasswordAuthentication no'
+    backup: yes
+- name: "Change MaxAuthTries Numbers"
+  replace:
+    path: /etc/ssh/sshd_config
+    regexp: '[#]PermitRootLogin without-password'
+    replace: 'PermitRootLogin without-password'
+    backup: yes
+- name: Start SSH
+  service:
+    name: ssh
+    enabled: yes
+    state: started
+- firewalld:
+    service: ssh
+    permanent: true
+    state: enabled
+

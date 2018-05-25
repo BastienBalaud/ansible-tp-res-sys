@@ -1,0 +1,27 @@
+ - stat:
+     path: /etc/letsencrypt/live/{{item.name}}/cert.pem
+   register: csr
+ - name: Create {{item.name}} CSR
+   shell: certbot-2 certonly -a nginx -d {{item.name|quote}}
+   when: csr.stat.islnk is not defined
+ - name: Add managed vhost config files.
+   template:
+     src: proxy-template.conf.j2
+     dest: /etc/nginx/sites-availables/{{item.name}}.conf
+     force: yes
+     owner: root
+     group: root
+     mode: 0644
+ - name: "Create link"
+   file:
+     src: /etc/nginx/sites-availables/{{item.name}}.conf
+     dest: /etc/nginx/sites-enabled/{{item.name}}.conf
+     state: link
+ - mysql_db:
+    name: {{item.short_name}}
+    state: present
+ - mysql_user:
+    name: {{item.short_name}}
+    password: {{item.mysql_password}}
+    priv: '{{item.short_name}}.*:ALL'
+    state: present

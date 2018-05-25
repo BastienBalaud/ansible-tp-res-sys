@@ -1,0 +1,46 @@
+  - name : "Common software"
+    package: name={{item}} state=present
+    with_items:
+      - epel-release
+      - deltarpm
+  - name : "Common software"
+    package: name={{item}} state=present
+    with_items:
+      - nginx
+      - php-fpm
+      - mariadb-server
+      - yum-utils
+ - name : Install cerbot repo
+   command : yum-config-manager --enable rhui-REGION-rhel-server-extras rhui-REGION-rhel-server-optional
+ - name : "Nginx"
+   package: name={{item}} state=present
+   with_items:
+     - certbot-nginx
+ - name: Create folder
+   file:
+     path: "{{item}}"
+     state: directory
+   with_items:
+     - /etc/nginx/sites-availables
+     - /etc/nginx/sites-enabled
+ - name : Copy nginx main config file
+   copy :
+     src: files/nginx.conf
+     dest : /etc/nginx/nginx.conf
+ - name: "Setup firewalld & check conf"
+   include_tasks : firewalld.yml
+   when:  manage_firewall | default('true') 
+ - name: "Build vhost"
+   include_tasks : create_vhost.yml
+   when: vhosts is defined
+   loop: "{{ vhosts }}"
+ - name: reload service nginx
+   systemd:
+     name: nginx
+     state: reloaded
+     enabled: yes
+ - name: start mariadb
+   systemd:
+     name: mariadb-server
+     state: started
+     enabled: yes
